@@ -1,0 +1,154 @@
+
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class Knapsack {
+	static long count =0;
+	
+
+	static int printknapSack(int kapasite, int weights[], int values[], int itemSize, int arr[]) {
+		int i, j;
+		int V[][] = new int[itemSize + 1][kapasite + 1];
+		int z = 0;
+		// building table K[][] in bottom up manner
+		for (i = 0; i <= itemSize; i++) {
+			for (j = 0; j <= kapasite; j++) {
+				count++;
+				if (i == 0 || j == 0) // first row and first column of the array
+										// of K should be 0.
+					V[i][j] = 0;
+				
+				else if (weights[i - 1] <= j) // value at index of the array which
+											// contains weights should be less
+											// or equal to j.
+					V[i][j] = Math.max(values[i - 1] + V[i - 1][j - weights[i - 1]], V[i - 1][j]);
+				else
+					V[i][j] = V[i - 1][j]; // this else statement prints the
+											// value in the top row to the
+											// bottom row.
+			}
+		}
+
+		//the result of Knapsack
+		int res = V[itemSize][kapasite];
+		int hello = res;
+		j = kapasite;
+		for (i = itemSize; i > 0 && res > 0; i--) {
+
+			// either the result comes from the top
+			// (V[i-1][j]) or from (values[i-1] + V[i-1]
+			// [j-weights[i-1]]) in  table. If it comes from the latter one  it means  the item is included.
+		
+			if (res == V[i - 1][j]) {
+				arr[z] = 0;
+				z++;
+				continue;
+			}
+
+			else { // This else statement specifies the items put in the bag.
+				arr[z] = 1; // If the item is in the bag, then this index of
+							// array 1.
+				z++;
+
+				res = res - values[i - 1]; // Since this weight is included its
+										// value is deducted
+				j = j - weights[i - 1];
+			}
+		}
+		return hello;
+	}
+	
+	static int max(int a, int b) {
+		return (a > b) ? a : b;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		long startAll = System.nanoTime();
+		int kapasite = 0;
+		int n = 0;
+
+		File file = new File("C:\\Users\\furkan\\Desktop\\1ler\\test1c.dat"); // This program takes input from a
+											// dat file.
+		String[] sayilar2 = new String[2];
+		Scanner input = new Scanner(file);
+		int i = 0;
+
+		String line = input.nextLine(); // This line just takes the first line
+										// of the text as an input to define
+										// value of W and n.
+
+		sayilar2 = line.split(" ");
+
+		n = Integer.parseInt(sayilar2[0]); 
+		kapasite = Integer.parseInt(sayilar2[1]);
+		i++;
+
+		int val[] = new int[kapasite]; //taking values of items.
+		int wt[] = new int[kapasite];  //taking weight of items.
+
+		while (input.hasNext()) { // This loop takes inputs line by line from
+									// the text.
+			line = input.nextLine();
+			sayilar2 = line.split(" ");
+
+			val[i - 1] = Integer.parseInt(sayilar2[0]);
+			wt[i - 1] = Integer.parseInt(sayilar2[1]);
+
+			i++;
+		}
+
+		int arr[] = new int[n];
+
+		FileWriter fWriter = null;
+		BufferedWriter writer = null;
+
+		try {
+			File out = new File("C:\\Users\\furkan\\Desktop\\output.dat."); //for writing
+			fWriter = new FileWriter(out);
+			writer = new BufferedWriter(fWriter);
+			
+			long start = System.nanoTime();
+			
+			writer.write(printknapSack(kapasite, wt, val, n, arr) + ""); // This
+																	// line
+																	// puts
+																	// the
+																	// sum
+																	// of
+																	// values
+																	// which
+																	// are
+																	// included
+																	// at
+																	// bag.
+			long finish = System.nanoTime();
+			
+			
+			System.out.println("Time millisec for only solution : " + ((finish - start) / Math.pow(10, 6)));
+			System.out.println("-------------");
+			for (i = n - 1; i >= 0; i--) { // This loop is for writing the ones
+											// and zeros to the text file.
+				writer.newLine();
+				writer.write(arr[i] + "");
+
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		input.close();
+
+		long finishAll = System.nanoTime();
+		
+		System.out.println("Time millisec for all: " + ((finishAll - startAll) / Math.pow(10, 6)));
+		
+		System.out.println("total count : "+ count);
+		
+
+	}
+
+}
